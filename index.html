@@ -16,19 +16,18 @@
             height: 450px;
         }
 
-        /* 카메라 본체 (레이어 10: 사진보다 위) */
+        /* 카메라 본체 (레이어 10) */
         .camera-body {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; opacity: 0; z-index: 10; transition: opacity 0.3s;
         }
         .camera-body.active { opacity: 1; }
 
-        /* [수정] 스크린 영역: 크기는 유지하고 위치만 이동 */
+        /* [복구] 스크린 영역: 원래 좌표와 크기로 완벽 복구 */
         #screen {
             position: absolute;
-            /* 위로 2%, 왼쪽으로 2% 이동 */
-            top: 27.2%; left: 18.1%; 
-            width: 37.4%; height: 32.2%; /* 크기 고정 */
+            top: 29.2%; left: 20.1%; 
+            width: 37.4%; height: 32.2%;
             
             overflow: hidden; display: flex;
             justify-content: center; align-items: center;
@@ -52,25 +51,48 @@
             width: 100%; height: 100%;
         }
 
-        /* [가이드 활성화] 버튼 레이어 (레이어 20: 가장 위) */
+        /* [가이드 활성화] 버튼 레이어 */
         .btn { 
             position: absolute; cursor: pointer; z-index: 20; 
-            /* 주황색 박스 표시 */
             background-color: rgba(255, 165, 0, 0.5); 
             border: 1px solid orange; 
         }
 
-        /* [수정] 버튼 정밀 좌표: 크기는 고정, 전체적으로 위/왼쪽으로 이동 */
-        /* OK 버튼 */
-        .btn-ok { top: 50.4%; left: 74.9%; width: 5.8%; height: 5.8%; border-radius: 50%; }
-        /* 보정 버튼 (상하좌우) */
-        .btn-up { top: 42.6%; left: 74.9%; width: 5.8%; height: 5.8%; }
-        .btn-down { top: 58.3%; left: 74.9%; width: 5.8%; height: 5.8%; }
-        .btn-left { top: 50.4%; left: 67%; width: 5.8%; height: 5.8%; }
-        .btn-right { top: 50.4%; left: 82.7%; width: 5.8%; height: 5.8%; }
+        /* [수정] 오른쪽 버튼들만 정밀 이동 (왼쪽으로 5px, 위로 4px) */
+        /* 원래 좌표 기준: top(위)에서 4px 빼고, left(왼쪽)에서 5px 뺌 */
         
-        /* MENU 버튼 (이동 모드) */
-        .btn-move { top: 66.3%; left: 69.8%; width: 15.8%; height: 4%; border-radius: 5px; }
+        .btn-ok { 
+            top: calc(53.4% - 4px); 
+            left: calc(76.9% - 5px); 
+            width: 5.8%; height: 5.8%; border-radius: 50%; 
+        }
+        .btn-up { 
+            top: calc(45.6% - 4px); 
+            left: calc(76.9% - 5px); 
+            width: 5.8%; height: 5.8%; 
+        }
+        .btn-down { 
+            top: calc(61.3% - 4px); 
+            left: calc(76.9% - 5px); 
+            width: 5.8%; height: 5.8%; 
+        }
+        .btn-left { 
+            top: calc(53.4% - 4px); 
+            left: calc(69% - 5px); 
+            width: 5.8%; height: 5.8%; 
+        }
+        .btn-right { 
+            top: calc(53.4% - 4px); 
+            left: calc(84.7% - 5px); 
+            width: 5.8%; height: 5.8%; 
+        }
+        
+        /* MENU 버튼도 함께 이동 */
+        .btn-move { 
+            top: calc(69.3% - 4px); 
+            left: calc(71.8% - 5px); 
+            width: 15.8%; height: 4%; border-radius: 5px; 
+        }
 
         #status-tip {
             position: absolute; bottom: 12%; left: 50%; transform: translateX(-50%);
@@ -106,6 +128,7 @@
 <input type="file" id="file-input" accept="image/*" onchange="previewImage(event)">
 
 <script>
+    /* 스크립트 로직은 이전과 동일하게 유지됩니다 */
     const themes = [
         { id: 'blue', color: '#9abedb', tipBg: 'rgba(154, 190, 219, 0.95)' },
         { id: 'pink', color: '#ffb6c1', tipBg: 'rgba(255, 182, 193, 0.95)' },
