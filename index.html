@@ -3,72 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        /* 기본 설정 */
         body {
             margin: 0; display: flex; justify-content: center; align-items: center;
             background-color: transparent; overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
             user-select: none;
         }
+
         .widget-container {
-            position: relative; width: 450px; height: 450px; /* 1:1 비율 유지 */
+            position: relative;
+            width: 450px; 
+            height: 450px;
         }
 
-        /* 카메라 본체 (레이어 2: 사진 위) */
+        /* 카메라 본체 (레이어 10: 사진보다 위) */
         .camera-body {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; opacity: 0; z-index: 10; transition: opacity 0.3s;
         }
         .camera-body.active { opacity: 1; }
 
-        /* 스크린 영역 (레이어 1: 사진 아래) */
+        /* [가이드 활성화] 스크린 영역 (레이어 5: 카메라보다 아래) */
         #screen {
             position: absolute;
-            /* ▼ 주황색 가이드 박스 정밀 좌표 ▼ */
             top: 29.2%; left: 20.1%; width: 37.4%; height: 32.2%;
-            
             overflow: hidden; display: flex;
             justify-content: center; align-items: center;
-            background-color: #f2f2f2; cursor: pointer; z-index: 5; border-radius: 3px;
+            cursor: pointer; z-index: 5; border-radius: 3px;
+            
+            /* 주황색 박스 표시 */
+            background-color: rgba(255, 165, 0, 0.2);
+            box-shadow: inset 0 0 0 2px rgba(255, 165, 0, 0.7);
         }
+
         #uploaded-img {
             position: absolute; width: 100%; height: 100%;
             object-fit: cover; cursor: grab; display: none;
             transition: transform 0.1s ease, filter 0.2s ease;
         }
 
-        /* 문구 */
         .plus-icon {
             font-size: 14px; text-align: center; font-weight: 500;
             pointer-events: none; white-space: nowrap;
-            display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            width: 100%; height: 100%;
         }
 
-        /* 버튼 레이어 (레이어 3: 가장 위) */
-        .btn { position: absolute; cursor: pointer; z-index: 20; background: transparent; }
-        
-        /* ▼▼▼ 위치 확인용 (확인 후 주석 처리하세요) ▼▼▼ */
-        /* .btn, #screen { box-shadow: inset 0 0 0 2px rgba(255, 165, 0, 0.7); background: rgba(255, 165, 0, 0.2); } */
+        /* [가이드 활성화] 버튼 레이어 (레이어 20: 가장 위) */
+        .btn { 
+            position: absolute; cursor: pointer; z-index: 20; 
+            /* 주황색 박스 표시 */
+            background-color: rgba(255, 165, 0, 0.5); 
+            border: 1px solid orange; 
+        }
 
-        /* ▼ 주황색 가이드 박스 정밀 좌표 적용 ▼ */
-        /* OK 버튼 (색상 변경) */
-        .btn-ok { top: 53.4%; left: 76.9%; width: 5.8%; height: 5.8%; }
-        
-        /* 보정 버튼 (상하좌우) */
+        /* 버튼 정밀 좌표 */
+        .btn-ok { top: 53.4%; left: 76.9%; width: 5.8%; height: 5.8%; border-radius: 50%; }
         .btn-up { top: 45.6%; left: 76.9%; width: 5.8%; height: 5.8%; }
         .btn-down { top: 61.3%; left: 76.9%; width: 5.8%; height: 5.8%; }
         .btn-left { top: 53.4%; left: 69%; width: 5.8%; height: 5.8%; }
         .btn-right { top: 53.4%; left: 84.7%; width: 5.8%; height: 5.8%; }
+        .btn-move { top: 69.3%; left: 71.8%; width: 15.8%; height: 4%; border-radius: 5px; }
 
-        /* MENU 버튼 (이동 모드) */
-        .btn-move { top: 69.3%; left: 71.8%; width: 15.8%; height: 4%; }
-
-        /* 알림창 */
         #status-tip {
             position: absolute; bottom: 12%; left: 50%; transform: translateX(-50%);
             color: white; padding: 6px 18px; border-radius: 20px;
             font-size: 13px; display: none; z-index: 30;
         }
+
         #file-input { display: none; }
     </style>
 </head>
@@ -97,7 +99,6 @@
 <input type="file" id="file-input" accept="image/*" onchange="previewImage(event)">
 
 <script>
-    // 스크립트 로직은 이전과 동일합니다.
     const themes = [
         { id: 'blue', color: '#9abedb', tipBg: 'rgba(154, 190, 219, 0.95)' },
         { id: 'pink', color: '#ffb6c1', tipBg: 'rgba(255, 182, 193, 0.95)' },
