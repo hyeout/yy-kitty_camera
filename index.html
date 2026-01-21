@@ -16,22 +16,22 @@
             height: 450px;
         }
 
-        /* 카메라 본체 (레이어 10: 사진보다 위) */
+        /* 카메라 프레임 (레이어 10) */
         .camera-body {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; opacity: 0; z-index: 10; transition: opacity 0.3s;
         }
         .camera-body.active { opacity: 1; }
 
-        /* [가이드 활성화] 스크린 영역 (레이어 5: 카메라보다 아래) */
+        /* [수정] 스크린 영역: 위로 올리고 왼쪽으로 이동 (top/left 감소) */
         #screen {
             position: absolute;
-            top: 29.2%; left: 20.1%; width: 37.4%; height: 32.2%;
+            top: 26.5%; left: 17.5%; width: 42%; height: 34.5%;
             overflow: hidden; display: flex;
             justify-content: center; align-items: center;
-            cursor: pointer; z-index: 5; border-radius: 3px;
+            cursor: pointer; z-index: 5; border-radius: 4px;
             
-            /* 주황색 박스 표시 */
+            /* 가이드 박스 유지 */
             background-color: rgba(255, 165, 0, 0.2);
             box-shadow: inset 0 0 0 2px rgba(255, 165, 0, 0.7);
         }
@@ -49,21 +49,25 @@
             width: 100%; height: 100%;
         }
 
-        /* [가이드 활성화] 버튼 레이어 (레이어 20: 가장 위) */
+        /* [가이드 활성화] 버튼 레이어 (레이어 20) */
         .btn { 
             position: absolute; cursor: pointer; z-index: 20; 
-            /* 주황색 박스 표시 */
             background-color: rgba(255, 165, 0, 0.5); 
             border: 1px solid orange; 
         }
 
-        /* 버튼 정밀 좌표 */
-        .btn-ok { top: 53.4%; left: 76.9%; width: 5.8%; height: 5.8%; border-radius: 50%; }
-        .btn-up { top: 45.6%; left: 76.9%; width: 5.8%; height: 5.8%; }
-        .btn-down { top: 61.3%; left: 76.9%; width: 5.8%; height: 5.8%; }
-        .btn-left { top: 53.4%; left: 69%; width: 5.8%; height: 5.8%; }
-        .btn-right { top: 53.4%; left: 84.7%; width: 5.8%; height: 5.8%; }
-        .btn-move { top: 69.3%; left: 71.8%; width: 15.8%; height: 4%; border-radius: 5px; }
+        /* [수정] 버튼 정밀 좌표: 전체적으로 위(top 감소) 및 왼쪽(left 감소)으로 이동 */
+        /* OK 버튼 */
+        .btn-ok { top: 50.5%; left: 74.5%; width: 7%; height: 7%; border-radius: 50%; }
+        
+        /* 보정 버튼 (상하좌우) */
+        .btn-up { top: 40.5%; left: 74.5%; width: 7%; height: 9%; }
+        .btn-down { top: 60.5%; left: 74.5%; width: 7%; height: 9%; }
+        .btn-left { top: 50.5%; left: 65.5%; width: 9%; height: 7%; }
+        .btn-right { top: 50.5%; left: 83.5%; width: 9%; height: 7%; }
+
+        /* MENU 버튼 (이동 모드) */
+        .btn-move { top: 66%; left: 68%; width: 14%; height: 4.5%; border-radius: 8px; }
 
         #status-tip {
             position: absolute; bottom: 12%; left: 50%; transform: translateX(-50%);
