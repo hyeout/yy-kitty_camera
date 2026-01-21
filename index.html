@@ -13,7 +13,7 @@
         .widget-container {
             position: relative;
             width: 450px; 
-            height: 450px; /* 1080x1080 정사각형 규격에 맞춤 */
+            height: 450px;
         }
 
         .camera-body {
@@ -22,18 +22,24 @@
         }
         .camera-body.active { opacity: 1; z-index: 2; }
 
-        /* 사각형 스크린 영역 */
+        /* [수정 1] 스크린 영역 (투명창에 맞게 재조정) */
         #screen {
             position: absolute;
-            top: 26.5%; left: 17.5%; width: 42%; height: 34.5%; 
+            /* 좌표 재계산 결과 적용 */
+            top: 27.3%; left: 18.3%; width: 41%; height: 33.2%;
+            
             overflow: hidden; display: flex;
             justify-content: center; align-items: center;
-            background-color: #fcfcfc; border-radius: 4px;
+            /* 배경색을 투명으로 변경 (PNG 투명 영역 활용) */
+            background-color: transparent; 
+            border-radius: 4px;
             cursor: pointer; z-index: 10;
+            /* ▼▼▼ 위치 확인용 빨간 박스 (나중에 지우세요) ▼▼▼ */
+            box-shadow: inset 0 0 0 2px rgba(255, 0, 0, 0.5); background-color: rgba(255,0,0,0.1);
         }
 
         #uploaded-img {
-            position: absolute; width: 150%; height: 150%;
+            position: absolute; width: 102%; height: 102%; /* 꽉 차게 미세 조정 */
             object-fit: cover; cursor: grab; display: none;
             transition: transform 0.1s ease, filter 0.2s ease; z-index: 12;
         }
@@ -43,20 +49,24 @@
             z-index: 11; pointer-events: none;
         }
 
-        /* 버튼 레이어 */
-        .btn { position: absolute; cursor: pointer; z-index: 20; background: transparent; }
+        /* [수정 2, 3] 버튼 레이어 좌표 재조정 */
+        .btn { 
+            position: absolute; cursor: pointer; z-index: 20; 
+            /* ▼▼▼ 위치 확인용 빨간 박스 (나중에 지우세요) ▼▼▼ */
+            background-color: rgba(255, 0, 0, 0.4); border: 1px solid red;
+        }
         
-        /* 1. 색상 변경 (OK 버튼) */
-        .btn-ok { top: 50.5%; left: 74.5%; width: 9%; height: 9%; border-radius: 50%; }
+        /* 색상 변경 (OK 버튼 - 중앙) */
+        .btn-ok { top: 49.5%; left: 74%; width: 8.5%; height: 8.5%; border-radius: 50%; }
         
-        /* 2. 보정 버튼 (방향키 상하좌우) */
-        .btn-up { top: 40%; left: 74.5%; width: 9%; height: 9%; }
-        .btn-down { top: 61%; left: 74.5%; width: 9%; height: 9%; }
-        .btn-left { top: 50.5%; left: 65.5%; width: 9%; height: 9%; }
-        .btn-right { top: 50.5%; left: 83.5%; width: 9%; height: 9%; }
+        /* 보정 버튼 (상하좌우 - OK 버튼 기준 정렬) */
+        .btn-up { top: 39%; left: 74%; width: 8.5%; height: 9%; }
+        .btn-down { top: 60%; left: 74%; width: 8.5%; height: 9%; }
+        .btn-left { top: 49.5%; left: 64%; width: 9%; height: 8.5%; }
+        .btn-right { top: 49.5%; left: 84%; width: 9%; height: 8.5%; }
 
-        /* 3. 사진 이동 (MENU 위 타원 버튼) */
-        .btn-move { top: 66%; left: 68%; width: 10%; height: 4%; border-radius: 10px; }
+        /* 사진 이동 (MENU 위 타원 버튼) */
+        .btn-move { top: 67%; left: 69%; width: 9.5%; height: 4.5%; border-radius: 10px; }
 
         #status-tip {
             position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%);
