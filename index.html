@@ -23,7 +23,7 @@
         }
         .camera-body.active { opacity: 1; }
 
-        /* [복구] 스크린 영역: 원래 좌표와 크기로 완벽 복구 */
+        /* [복구 완료] 스크린 영역: 원래 주신 좌표(29.2%, 20.1%)로 고정 */
         #screen {
             position: absolute;
             top: 29.2%; left: 20.1%; 
@@ -33,7 +33,7 @@
             justify-content: center; align-items: center;
             cursor: pointer; z-index: 5; border-radius: 3px;
             
-            /* 주황색 박스 표시 */
+            /* 주황색 가이드 박스 */
             background-color: rgba(255, 165, 0, 0.2);
             box-shadow: inset 0 0 0 2px rgba(255, 165, 0, 0.7);
         }
@@ -58,40 +58,42 @@
             border: 1px solid orange; 
         }
 
-        /* [수정] 오른쪽 버튼들만 정밀 이동 (왼쪽으로 5px, 위로 4px) */
-        /* 원래 좌표 기준: top(위)에서 4px 빼고, left(왼쪽)에서 5px 뺌 */
+        /* [대폭 수정] 버튼 위치를 하늘색 방향키와 타원 버튼에 맞춰 위/왼쪽으로 이동 */
         
+        /* OK 버튼: 원형 방향키의 정중앙 */
         .btn-ok { 
-            top: calc(53.4% - 4px); 
-            left: calc(76.9% - 5px); 
-            width: 5.8%; height: 5.8%; border-radius: 50%; 
+            top: 47.5%; 
+            left: 71.5%; 
+            width: 6%; height: 6%; border-radius: 50%; 
         }
+        
+        /* 방향키 (상하좌우): OK 버튼을 기준으로 배치 */
         .btn-up { 
-            top: calc(45.6% - 4px); 
-            left: calc(76.9% - 5px); 
-            width: 5.8%; height: 5.8%; 
+            top: 39.5%; 
+            left: 71.5%; 
+            width: 6%; height: 7%; 
         }
         .btn-down { 
-            top: calc(61.3% - 4px); 
-            left: calc(76.9% - 5px); 
-            width: 5.8%; height: 5.8%; 
+            top: 55.5%; 
+            left: 71.5%; 
+            width: 6%; height: 7%; 
         }
         .btn-left { 
-            top: calc(53.4% - 4px); 
-            left: calc(69% - 5px); 
-            width: 5.8%; height: 5.8%; 
+            top: 47.5%; 
+            left: 64%; 
+            width: 7%; height: 6%; 
         }
         .btn-right { 
-            top: calc(53.4% - 4px); 
-            left: calc(84.7% - 5px); 
-            width: 5.8%; height: 5.8%; 
+            top: 47.5%; 
+            left: 79.5%; 
+            width: 7%; height: 6%; 
         }
         
-        /* MENU 버튼도 함께 이동 */
+        /* MENU 버튼: MENU 글자 위의 '하늘색 타원 버튼' 위치로 상향 이동 */
         .btn-move { 
-            top: calc(69.3% - 4px); 
-            left: calc(71.8% - 5px); 
-            width: 15.8%; height: 4%; border-radius: 5px; 
+            top: 62.5%; 
+            left: 66.5%; 
+            width: 15.8%; height: 4.5%; border-radius: 10px; 
         }
 
         #status-tip {
@@ -128,7 +130,7 @@
 <input type="file" id="file-input" accept="image/*" onchange="previewImage(event)">
 
 <script>
-    /* 스크립트 로직은 이전과 동일하게 유지됩니다 */
+    /* 스크립트 로직 (동일) */
     const themes = [
         { id: 'blue', color: '#9abedb', tipBg: 'rgba(154, 190, 219, 0.95)' },
         { id: 'pink', color: '#ffb6c1', tipBg: 'rgba(255, 182, 193, 0.95)' },
