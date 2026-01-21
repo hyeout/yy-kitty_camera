@@ -2,28 +2,35 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <style>
         body {
             margin: 0; display: flex; justify-content: center; align-items: center;
             background-color: transparent; overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
             user-select: none;
+            /* body 높이를 화면 전체로 잡아 중앙 정렬 보장 */
+            min-height: 100vh;
         }
 
+        /* [핵심 수정] 비율 고정 컨테이너 */
         .widget-container {
             position: relative;
-            width: 450px; 
-            height: 450px;
+            width: 100%;         /* 부모 요소 너비에 꽉 차게 */
+            max-width: 450px;    /* 단, 너무 커지지 않게 최대 크기 제한 (원하는대로 조절 가능) */
+            aspect-ratio: 1 / 1; /* ⭐ 핵심: 1:1 정사각형 비율 강제 고정 ⭐ */
+            /* height: 450px; <- 삭제! 높이는 비율에 따라 자동으로 결정됨 */
         }
 
-        /* 카메라 본체 (레이어 10: 사진보다 위) */
+        /* 이하 내용은 이전 최종본과 동일합니다. */
+
+        /* 카메라 본체 (레이어 10) */
         .camera-body {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; opacity: 0; z-index: 10; transition: opacity 0.3s;
         }
         .camera-body.active { opacity: 1; }
 
-        /* 스크린 영역 (레이어 5: 카메라보다 아래) */
+        /* 스크린 영역 (레이어 5) */
         #screen {
             position: absolute;
             top: 29.2%; left: 20.1%; 
@@ -32,7 +39,6 @@
             overflow: hidden; display: flex;
             justify-content: center; align-items: center;
             cursor: pointer; z-index: 5; border-radius: 3px;
-            /* 가이드라인 배경 및 그림자 제거 완료 */
             background-color: transparent;
         }
 
@@ -43,48 +49,42 @@
         }
 
         .plus-icon {
-            font-size: 14px; text-align: center; font-weight: 500;
+            font-size: clamp(12px, 3vw, 16px); /* 폰트 크기도 반응형으로 조절 */
+            text-align: center; font-weight: 500;
             pointer-events: none; white-space: nowrap;
             display: flex; align-items: center; justify-content: center;
             width: 100%; height: 100%;
         }
 
-        /* 버튼 레이어 (레이어 20: 가장 위) */
+        /* 버튼 레이어 (레이어 20) */
         .btn { 
             position: absolute; cursor: pointer; z-index: 20; 
-            /* 가이드라인 배경 및 테두리 제거 완료 */
             background-color: transparent; 
         }
 
-        /* 우리가 함께 맞춘 초정밀 버튼 좌표 (크기/위치 고정) */
+        /* 초정밀 버튼 좌표 (비율 고정으로 완벽 일치 유지) */
         .btn-ok { 
-            top: calc(53.2% - 20px); 
-            left: calc(76.5% - 14px); 
+            top: calc(53.2% - 20px); left: calc(76.5% - 14px); 
             width: 5%; height: 5%; border-radius: 50%; 
         }
         .btn-up { 
-            top: calc(45.4% - 20px); 
-            left: calc(76.5% - 14px); 
+            top: calc(45.4% - 20px); left: calc(76.5% - 14px); 
             width: 5%; height: 6%; 
         }
         .btn-down { 
-            top: calc(61.1% - 20px); 
-            left: calc(76.5% - 14px); 
+            top: calc(61.1% - 20px); left: calc(76.5% - 14px); 
             width: 5%; height: 6%; 
         }
         .btn-left { 
-            top: calc(53.2% - 20px); 
-            left: calc(68.8% - 14px); 
+            top: calc(53.2% - 20px); left: calc(68.8% - 14px); 
             width: 6%; height: 5%; 
         }
         .btn-right { 
-            top: calc(53.2% - 20px); 
-            left: calc(84.2% - 14px); 
+            top: calc(53.2% - 20px); left: calc(84.2% - 14px); 
             width: 6%; height: 5%; 
         }
         .btn-move { 
-            top: calc(69.1% - 20px); 
-            left: calc(71.5% - 14px); 
+            top: calc(69.1% - 20px); left: calc(71.5% - 14px); 
             width: 14%; height: 4.5%; border-radius: 10px; 
         }
 
@@ -92,6 +92,7 @@
             position: absolute; bottom: 12%; left: 50%; transform: translateX(-50%);
             color: white; padding: 6px 18px; border-radius: 20px;
             font-size: 13px; display: none; z-index: 30;
+            white-space: nowrap; /* 팁 텍스트 줄바꿈 방지 */
         }
 
         #file-input { display: none; }
@@ -122,6 +123,7 @@
 <input type="file" id="file-input" accept="image/*" onchange="previewImage(event)">
 
 <script>
+    /* 스크립트는 이전과 완전히 동일합니다. */
     const themes = [
         { id: 'blue', color: '#9abedb', tipBg: 'rgba(154, 190, 219, 0.95)' },
         { id: 'pink', color: '#ffb6c1', tipBg: 'rgba(255, 182, 193, 0.95)' },
