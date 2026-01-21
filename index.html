@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0; display: flex; justify-content: center; align-items: center;
+            background-color: transparent; overflow: hidden;
+            font-family: 'Gaegu', cursive; user-select: none;
+        }
+
+        /* 1:1 비율 유지 및 크기 고정 */
+        .widget-container {
+            position: relative;
+            width: 450px; 
+            height: 450px;
+        }
+
+        /* 모든 카메라 본체 완벽 겹침 */
+        .camera-body {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; opacity: 0; z-index: 1; transition: opacity 0.3s;
+        }
+        .camera-body.active { opacity: 1; z-index: 2; }
+
+        /* 사각형 스크린 영역 (1080px 기준 좌표 계산 적용) */
+        #screen {
+            position: absolute;
+            top: 26.5%; left: 17.5%; width: 42%; height: 34.5%; 
+            overflow: hidden; display: flex;
+            justify-content: center; align-items: center;
+            background-color: #fcfcfc; border-radius: 4px;
+            cursor: pointer; z-index: 10;
+        }
+
+        #uploaded-img {
+            position: absolute; width: 150%; height: 150%;
+            object-fit: cover; cursor: grab; display: none;
+            transition: transform 0.1s ease, filter 0.2s ease; z-index: 12;
+        }
+
+        .plus-icon {
+            font-size: 16px; text-align: center; font-weight: bold;
+            z-index: 11; pointer-events: none;
+        }
+
+        /* 투명 버튼 레이어 (1080px 기준 위치) */
+        .btn { position: absolute; cursor: pointer; z-index: 20; background: transparent; }
+        
+        /* 1. 색상 변경 (OK 버튼) */
+        .btn-ok { top: 50.5%; left: 74.5%; width: 9%; height: 9%; border-radius: 50%; }
+        
+        /* 2. 보정 버튼 (상하좌우) */
+        .btn-up { top: 40%; left: 74.5%; width: 9%; height: 9%; }
+        .btn-down { top: 61%; left: 74.5%; width: 9%; height: 9%; }
+        .btn-left { top: 50.5%; left: 65.5%; width: 9%; height: 9%; }
+        .btn-right { top: 50.5%; left: 83.5%; width: 9%; height: 9%; }
+
+        /* 3. 사진 이동 (MENU 위 타원 버튼) */
+        .btn-move { top: 66%; left: 68%; width: 10%; height: 4%; border-radius: 10px; }
+
+        /* 알림창 */
+        #status-tip {
+            position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%);
+            color: white; padding: 6px 18px; border-radius: 20px;
+            font-size: 14px; display: none; z-index: 30;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        #file-input { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="widget-container">
+    <img src="kitty_camera_blue.jpg" id="cam-blue" class="camera-body active">
+    <img src="kitty_camera_pink.jpg" id="cam-pink" class="camera-body">
+    <img src="kitty_camera_red.jpg" id="cam-red" class="camera-body">
+
+    <div id="screen" onclick="triggerUpload()">
+        <div class="plus-icon" id="placeholder" style="color: #9abedb;">click to upload ♡</div>
+        <img id="uploaded-img" src="" draggable="false">
+    </div>
+
+    <div class="btn btn-ok" onclick="switchColor()" title="색상 변경"></div>
+    <div class="btn btn-move" onclick="toggleMoveMode()" title="이동 모드"></div>
+    <div class="btn btn-up" onclick="adjustFilter('bright', 10)" title="밝기+"></div>
+    <div class="btn btn-down" onclick="adjustFilter('bright', -10)" title="밝기-"></div>
+    <div class="btn btn-left" onclick="adjustFilter('contrast', -10)" title="대비-"></div>
+    <div class="btn btn-right" onclick="adjustFilter('contrast', 10)" title="대비+"></div>
+
+    <div id="status-tip"></div>
+</div>
+
+<input type="file" id="file-input" accept="image/*" onchange="previewImage(event)">
+
+<script>
+    const themes = [
+        { id: 'blue', color: '#9abedb', tipBg: 'rgba(154, 190, 219, 0.9)' },
+        { id: 'pink', color: '#ffb6c1', tipBg: 'rgba(255, 182, 193, 0.9)' },
+        { id: 'red',  color: '#ff8a8a', tipBg: 'rgba(255, 138, 138, 0.9)' }
+    ];
+    let currentIndex = 0;
+    let brightness = 100, contrast = 100;
+    let isMoveMode = false, isDragging = false;
+    let startX, startY, translateX = 0, translateY = 0;
+
+    const img = document.getElementById('uploaded-img');
+    const screen = document.getElementById('screen');
+    const tip = document.getElementById('status-tip');
+    const placeholder = document.getElementById('placeholder');
+
+    function switchColor() {
+        document.getElementById(`cam-${themes[currentIndex].id}`).classList.remove('active');
+        currentIndex = (currentIndex + 1) % themes.length;
+        document.getElementById(`cam-${themes[currentIndex].id}`).classList.add('active');
+        placeholder.style.color = themes[currentIndex].color;
+        showTip(`Theme: ${themes[currentIndex].id.toUpperCase()}`);
+    }
+
+    function toggleMoveMode() {
+        if (!img.src || img.style.display === 'none') return;
+        isMoveMode = !isMoveMode;
+        if (isMoveMode) {
+            showTip("MOVE MODE: ON (Drag Photo)");
+            screen.style.cursor = 'move'; img.style.pointerEvents = 'auto';
+        } else {
+            showTip("MOVE MODE: OFF");
+            screen.style.cursor = 'pointer'; img.style.pointerEvents = 'none';
+        }
+    }
+
+    function adjustFilter(type, value) {
+        if (!img.src || img.style.display === 'none') return;
+        if (type === 'bright') brightness += value;
+        if (type === 'contrast') contrast += value;
+        img.style.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
+        showTip(`Bright: ${brightness}% | Contrast: ${contrast}%`);
+    }
+
+    function showTip(text) {
+        tip.innerText = text;
+        tip.style.background = themes[currentIndex].tipBg;
+        tip.style.display = 'block';
+        clearTimeout(window.tipTimeout);
+        window.tipTimeout = setTimeout(() => { tip.style.display = 'none'; }, 2000);
+    }
+
+    function triggerUpload() { if (!isMoveMode) document.getElementById('file-input').click(); }
+
+    function previewImage(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function() {
+            img.src = reader.result;
+            img.style.display = 'block';
+            placeholder.style.display = 'none';
+            brightness = 100; contrast = 100; translateX = 0; translateY = 0;
+            img.style.filter = 'brightness(100%) contrast(100%)';
+            updateTransform();
+        }
+        if (file) reader.readAsDataURL(file);
+    }
+
+    screen.addEventListener('mousedown', (e) => { if (isMoveMode) { isDragging = true; startX = e.clientX - translateX; startY = e.clientY - translateY; } });
+    window.addEventListener('mousemove', (e) => { if (isDragging) { translateX = e.clientX - startX; translateY = e.clientY - startY; updateTransform(); } });
+    window.addEventListener('mouseup', () => { isDragging = false; });
+    function updateTransform() { img.style.transform = `translate(${translateX}px, ${translateY}px)`; }
+</script>
+
+</body>
+</html>
