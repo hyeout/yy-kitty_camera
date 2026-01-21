@@ -7,9 +7,10 @@
         body {
             margin: 0; display: flex; justify-content: center; align-items: center;
             background-color: transparent; overflow: hidden;
-            font-family: 'Gaegu', cursive; user-select: none;
+            font-family: 'Gaegu', cursive, sans-serif; user-select: none;
         }
 
+        /* 1080x1080 비율을 유지하는 컨테이너 */
         .widget-container {
             position: relative;
             width: 450px; 
@@ -22,24 +23,18 @@
         }
         .camera-body.active { opacity: 1; z-index: 2; }
 
-        /* [수정 1] 스크린 영역 (투명창에 맞게 재조정) */
+        /* [수정] 보내주신 주황색 박스 위치에 맞춘 스크린 영역 */
         #screen {
             position: absolute;
-            /* 좌표 재계산 결과 적용 */
-            top: 27.3%; left: 18.3%; width: 41%; height: 33.2%;
-            
+            top: 28.5%; left: 19%; width: 39.5%; height: 33.5%;
             overflow: hidden; display: flex;
             justify-content: center; align-items: center;
-            /* 배경색을 투명으로 변경 (PNG 투명 영역 활용) */
-            background-color: transparent; 
-            border-radius: 4px;
+            background-color: transparent;
             cursor: pointer; z-index: 10;
-            /* ▼▼▼ 위치 확인용 빨간 박스 (나중에 지우세요) ▼▼▼ */
-            box-shadow: inset 0 0 0 2px rgba(255, 0, 0, 0.5); background-color: rgba(255,0,0,0.1);
         }
 
         #uploaded-img {
-            position: absolute; width: 102%; height: 102%; /* 꽉 차게 미세 조정 */
+            position: absolute; width: 101%; height: 101%;
             object-fit: cover; cursor: grab; display: none;
             transition: transform 0.1s ease, filter 0.2s ease; z-index: 12;
         }
@@ -49,24 +44,23 @@
             z-index: 11; pointer-events: none;
         }
 
-        /* [수정 2, 3] 버튼 레이어 좌표 재조정 */
-        .btn { 
-            position: absolute; cursor: pointer; z-index: 20; 
-            /* ▼▼▼ 위치 확인용 빨간 박스 (나중에 지우세요) ▼▼▼ */
-            background-color: rgba(255, 0, 0, 0.4); border: 1px solid red;
-        }
+        /* [수정] 주황색 박스 위치에 정밀하게 맞춘 버튼들 */
+        .btn { position: absolute; cursor: pointer; z-index: 20; background: transparent; }
         
-        /* 색상 변경 (OK 버튼 - 중앙) */
-        .btn-ok { top: 49.5%; left: 74%; width: 8.5%; height: 8.5%; border-radius: 50%; }
-        
-        /* 보정 버튼 (상하좌우 - OK 버튼 기준 정렬) */
-        .btn-up { top: 39%; left: 74%; width: 8.5%; height: 9%; }
-        .btn-down { top: 60%; left: 74%; width: 8.5%; height: 9%; }
-        .btn-left { top: 49.5%; left: 64%; width: 9%; height: 8.5%; }
-        .btn-right { top: 49.5%; left: 84%; width: 9%; height: 8.5%; }
+        /* 위치 확인이 필요하면 아래 주석을 해제하세요 */
+        /* .btn { background: rgba(255, 165, 0, 0.4); border: 1px solid orange; } */
 
-        /* 사진 이동 (MENU 위 타원 버튼) */
-        .btn-move { top: 67%; left: 69%; width: 9.5%; height: 4.5%; border-radius: 10px; }
+        /* 1. OK 버튼 (가운데 원) - 색상 변경 */
+        .btn-ok { top: 51.5%; left: 74.5%; width: 6.5%; height: 6.5%; border-radius: 50%; }
+        
+        /* 2. 보정 버튼 (상하좌우 화살표) */
+        .btn-up { top: 43%; left: 74.5%; width: 6.5%; height: 8.5%; }
+        .btn-down { top: 60%; left: 74.5%; width: 6.5%; height: 8.5%; }
+        .btn-left { top: 51.5%; left: 66%; width: 8.5%; height: 6.5%; }
+        .btn-right { top: 51.5%; left: 83%; width: 8.5%; height: 6.5%; }
+
+        /* 3. MENU 버튼 (가로 타원) - 사진 이동 모드 */
+        .btn-move { top: 67.5%; left: 71%; width: 13.5%; height: 4.5%; border-radius: 10px; }
 
         #status-tip {
             position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%);
@@ -89,12 +83,12 @@
         <img id="uploaded-img" src="" draggable="false">
     </div>
 
-    <div class="btn btn-ok" onclick="switchColor()" title="색상 변경"></div>
-    <div class="btn btn-move" onclick="toggleMoveMode()" title="이동 모드"></div>
-    <div class="btn btn-up" onclick="adjustFilter('bright', 10)" title="밝기+"></div>
-    <div class="btn btn-down" onclick="adjustFilter('bright', -10)" title="밝기-"></div>
-    <div class="btn btn-left" onclick="adjustFilter('contrast', -10)" title="대비-"></div>
-    <div class="btn btn-right" onclick="adjustFilter('contrast', 10)" title="대비+"></div>
+    <div class="btn btn-ok" onclick="switchColor()" title="테마 변경"></div>
+    <div class="btn btn-move" onclick="toggleMoveMode()" title="사진 이동"></div>
+    <div id="u-btn" class="btn btn-up" onclick="adjustFilter('bright', 10)"></div>
+    <div id="d-btn" class="btn btn-down" onclick="adjustFilter('bright', -10)"></div>
+    <div id="l-btn" class="btn btn-left" onclick="adjustFilter('contrast', -10)"></div>
+    <div id="r-btn" class="btn btn-right" onclick="adjustFilter('contrast', 10)"></div>
 
     <div id="status-tip"></div>
 </div>
@@ -129,10 +123,10 @@
         if (!img.src || img.style.display === 'none') return;
         isMoveMode = !isMoveMode;
         if (isMoveMode) {
-            showTip("MOVE MODE: ON (Drag Photo)");
+            showTip("이동 모드 ON (드래그하세요)");
             screen.style.cursor = 'move'; img.style.pointerEvents = 'auto';
         } else {
-            showTip("MOVE MODE: OFF");
+            showTip("이동 모드 OFF");
             screen.style.cursor = 'pointer'; img.style.pointerEvents = 'none';
         }
     }
