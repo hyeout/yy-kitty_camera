@@ -2,26 +2,22 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
         body {
             margin: 0; display: flex; justify-content: center; align-items: center;
             background-color: transparent; overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-            user-select: none;
-            /* body 높이를 화면 전체로 잡아 중앙 정렬 보장 */
-            min-height: 100vh;
+            user-select: none; min-height: 100vh;
         }
 
-        /* [핵심 수정] 비율 고정 컨테이너 */
+        /* [핵심] 비율 고정 컨테이너: 창을 줄여도 1:1 유지 */
         .widget-container {
             position: relative;
-            width: 100%;         /* 부모 요소 너비에 꽉 차게 */
-            max-width: 450px;    /* 단, 너무 커지지 않게 최대 크기 제한 (원하는대로 조절 가능) */
-            aspect-ratio: 1 / 1; /* ⭐ 핵심: 1:1 정사각형 비율 강제 고정 ⭐ */
-            /* height: 450px; <- 삭제! 높이는 비율에 따라 자동으로 결정됨 */
+            width: 95vw;          /* 화면 너비에 맞게 조절 */
+            max-width: 450px;     /* 최대 크기 제한 */
+            aspect-ratio: 1 / 1;  /* ⭐ 가로세로 1:1 비율 강제 고정 */
         }
-
-        /* 이하 내용은 이전 최종본과 동일합니다. */
 
         /* 카메라 본체 (레이어 10) */
         .camera-body {
@@ -35,64 +31,44 @@
             position: absolute;
             top: 29.2%; left: 20.1%; 
             width: calc(37.4% + 8px); height: 32.2%;
-            
             overflow: hidden; display: flex;
             justify-content: center; align-items: center;
             cursor: pointer; z-index: 5; border-radius: 3px;
-            background-color: transparent;
+            background-color: #f7f7f7;
         }
 
+        /* [수정] 업로드 이미지: 원본 비율 유지 및 이동 최적화 */
         #uploaded-img {
-            position: absolute; width: 100%; height: 100%;
-            object-fit: cover; cursor: grab; display: none;
-            transition: transform 0.1s ease, filter 0.2s ease;
+            position: absolute; 
+            /* 원본 비율을 위해 width/height를 강제하지 않음 */
+            height: 110%; /* 화면보다 살짝 크게 하여 이동 여유분 확보 */
+            width: auto;
+            max-width: none; max-height: none;
+            cursor: grab; display: none;
+            transition: filter 0.2s ease; /* 이동 시 transform transition은 제거 (부드러운 반응을 위해) */
         }
 
         .plus-icon {
-            font-size: clamp(12px, 3vw, 16px); /* 폰트 크기도 반응형으로 조절 */
-            text-align: center; font-weight: 500;
-            pointer-events: none; white-space: nowrap;
-            display: flex; align-items: center; justify-content: center;
-            width: 100%; height: 100%;
+            font-size: clamp(10px, 3vw, 14px);
+            text-align: center; font-weight: 500; color: #9abedb;
+            pointer-events: none;
         }
 
         /* 버튼 레이어 (레이어 20) */
-        .btn { 
-            position: absolute; cursor: pointer; z-index: 20; 
-            background-color: transparent; 
-        }
+        .btn { position: absolute; cursor: pointer; z-index: 20; background-color: transparent; }
 
-        /* 초정밀 버튼 좌표 (비율 고정으로 완벽 일치 유지) */
-        .btn-ok { 
-            top: calc(53.2% - 20px); left: calc(76.5% - 14px); 
-            width: 5%; height: 5%; border-radius: 50%; 
-        }
-        .btn-up { 
-            top: calc(45.4% - 20px); left: calc(76.5% - 14px); 
-            width: 5%; height: 6%; 
-        }
-        .btn-down { 
-            top: calc(61.1% - 20px); left: calc(76.5% - 14px); 
-            width: 5%; height: 6%; 
-        }
-        .btn-left { 
-            top: calc(53.2% - 20px); left: calc(68.8% - 14px); 
-            width: 6%; height: 5%; 
-        }
-        .btn-right { 
-            top: calc(53.2% - 20px); left: calc(84.2% - 14px); 
-            width: 6%; height: 5%; 
-        }
-        .btn-move { 
-            top: calc(69.1% - 20px); left: calc(71.5% - 14px); 
-            width: 14%; height: 4.5%; border-radius: 10px; 
-        }
+        /* 버튼 좌표 (비율 고정으로 항상 일치) */
+        .btn-ok { top: calc(53.2% - 20px); left: calc(76.5% - 14px); width: 5%; height: 5%; border-radius: 50%; }
+        .btn-up { top: calc(45.4% - 20px); left: calc(76.5% - 14px); width: 5%; height: 6%; }
+        .btn-down { top: calc(61.1% - 20px); left: calc(76.5% - 14px); width: 5%; height: 6%; }
+        .btn-left { top: calc(53.2% - 20px); left: calc(68.8% - 14px); width: 6%; height: 5%; }
+        .btn-right { top: calc(53.2% - 20px); left: calc(84.2% - 14px); width: 6%; height: 5%; }
+        .btn-move { top: calc(69.1% - 20px); left: calc(71.5% - 14px); width: 14%; height: 4.5%; border-radius: 10px; }
 
         #status-tip {
             position: absolute; bottom: 12%; left: 50%; transform: translateX(-50%);
             color: white; padding: 6px 18px; border-radius: 20px;
-            font-size: 13px; display: none; z-index: 30;
-            white-space: nowrap; /* 팁 텍스트 줄바꿈 방지 */
+            font-size: 12px; display: none; z-index: 30; white-space: nowrap;
         }
 
         #file-input { display: none; }
@@ -106,7 +82,7 @@
     <img src="kitty_camera_red.png" id="cam-red" class="camera-body">
 
     <div id="screen" onclick="triggerUpload()">
-        <div class="plus-icon" id="placeholder" style="color: #9abedb;">click to upload ♡</div>
+        <div class="plus-icon" id="placeholder">click to upload ♡</div>
         <img id="uploaded-img" src="" draggable="false">
     </div>
 
@@ -123,7 +99,6 @@
 <input type="file" id="file-input" accept="image/*" onchange="previewImage(event)">
 
 <script>
-    /* 스크립트는 이전과 완전히 동일합니다. */
     const themes = [
         { id: 'blue', color: '#9abedb', tipBg: 'rgba(154, 190, 219, 0.95)' },
         { id: 'pink', color: '#ffb6c1', tipBg: 'rgba(255, 182, 193, 0.95)' },
@@ -151,10 +126,10 @@
         if (!img.src || img.style.display === 'none') return;
         isMoveMode = !isMoveMode;
         if (isMoveMode) {
-            showTip("이동 모드 ON (드래그하세요)");
+            showTip("MOVE MODE: ON");
             screen.style.cursor = 'move'; img.style.pointerEvents = 'auto';
         } else {
-            showTip("이동 모드 OFF");
+            showTip("MOVE MODE: OFF");
             screen.style.cursor = 'pointer'; img.style.pointerEvents = 'none';
         }
     }
@@ -184,17 +159,42 @@
             img.src = reader.result;
             img.style.display = 'block';
             placeholder.style.display = 'none';
+            // 초기화
             brightness = 100; contrast = 100; translateX = 0; translateY = 0;
             img.style.filter = 'brightness(100%) contrast(100%)';
-            updateTransform();
+            
+            // 사진 비율에 따른 초기 설정 (세로가 길면 높이 100%, 가로가 길면 너비 100%)
+            img.onload = function() {
+                if (img.naturalWidth > img.naturalHeight) {
+                    img.style.height = "100%"; img.style.width = "auto";
+                } else {
+                    img.style.width = "100%"; img.style.height = "auto";
+                }
+                updateTransform();
+            }
         }
         if (file) reader.readAsDataURL(file);
     }
 
-    screen.addEventListener('mousedown', (e) => { if (isMoveMode) { isDragging = true; startX = e.clientX - translateX; startY = e.clientY - translateY; } });
-    window.addEventListener('mousemove', (e) => { if (isDragging) { translateX = e.clientX - startX; translateY = e.clientY - startY; updateTransform(); } });
+    screen.addEventListener('mousedown', (e) => { 
+        if (isMoveMode) { 
+            isDragging = true; 
+            startX = e.clientX - translateX; 
+            startY = e.clientY - translateY; 
+        } 
+    });
+    window.addEventListener('mousemove', (e) => { 
+        if (isDragging) { 
+            translateX = e.clientX - startX; 
+            translateY = e.clientY - startY; 
+            updateTransform(); 
+        } 
+    });
     window.addEventListener('mouseup', () => { isDragging = false; });
-    function updateTransform() { img.style.transform = `translate(${translateX}px, ${translateY}px)`; }
+    
+    function updateTransform() { 
+        img.style.transform = `translate(${translateX}px, ${translateY}px)`; 
+    }
 </script>
 
 </body>
