@@ -58,40 +58,40 @@
             border: 1px solid orange; 
         }
 
-        /* [수정] 크기는 고정, 위치만 이동 (위로 100px, 왼쪽으로 64px) */
-        /* calc()를 이용해 기존 오프셋에서 요청하신 픽셀만큼 감산하였습니다. */
+        /* [수정] 업로드창과 버튼 크기는 유지하고, 위치만 하늘색 원 중심에 맞춤 */
+        /* 이전의 큰 폭 이동(100px/64px)을 취소하고 시각적 중심 좌표로 재설정 */
         
         .btn-ok { 
-            top: calc(50.8% - 91px); /* 9px - 100px */
-            left: calc(74.5% - 58px); /* 6px - 64px */
+            top: 53.2%; 
+            left: 76.5%; 
             width: 5%; height: 5%; border-radius: 50%; 
         }
         
         .btn-up { 
-            top: calc(44.5% - 91px); 
-            left: calc(74.5% - 58px); 
+            top: 45.4%; 
+            left: 76.5%; 
             width: 5%; height: 6%; 
         }
         .btn-down { 
-            top: calc(57.5% - 91px); 
-            left: calc(74.5% - 58px); 
+            top: 61.1%; 
+            left: 76.5%; 
             width: 5%; height: 6%; 
         }
         .btn-left { 
-            top: calc(51% - 91px); 
-            left: calc(68.5% - 58px); 
+            top: 53.2%; 
+            left: 68.8%; 
             width: 6%; height: 5%; 
         }
         .btn-right { 
-            top: calc(51% - 91px); 
-            left: calc(80.5% - 58px); 
+            top: 53.2%; 
+            left: 84.2%; 
             width: 6%; height: 5%; 
         }
         
-        /* MENU 버튼 이동 */
+        /* MENU 버튼: 하늘색 타원 버튼 위치에 고정 */
         .btn-move { 
-            top: calc(67% - 91px); 
-            left: calc(69% - 58px); 
+            top: 69.1%; 
+            left: 71.5%; 
             width: 14%; height: 4.5%; border-radius: 10px; 
         }
 
