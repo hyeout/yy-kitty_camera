@@ -23,7 +23,7 @@
         }
         .camera-body.active { opacity: 1; }
 
-        /* [수정] 스크린 영역: 너비를 오른쪽으로 6px 더 확장 (기존 +2px에서 +8px로) */
+        /* [완전 고정] 스크린 영역: 더 이상 수정하지 않습니다. */
         #screen {
             position: absolute;
             top: 29.2%; left: 20.1%; 
@@ -58,41 +58,41 @@
             border: 1px solid orange; 
         }
 
-        /* [수정] 버튼 크기를 반으로 줄이고 중앙 정렬 유지 */
-        /* 크기를 줄이는 만큼 top과 left에 보정값을 더해 중심을 맞췄습니다. */
+        /* [수정] 버튼 크기를 살짝 키우고, 중심부로 밀집시켜 하늘색 원 안으로 배치 */
+        /* 요청하신 오프셋 (오른쪽 6px, 아래 9px)을 유지하며 간격을 좁혔습니다. */
         
         .btn-ok { 
-            top: calc(49% + 12px); 
-            left: calc(73% + 8px); 
-            width: 3%; height: 3%; border-radius: 50%; 
+            top: calc(50.8% + 9px); 
+            left: calc(74.5% + 6px); 
+            width: 5%; height: 5%; border-radius: 50%; 
         }
         
         .btn-up { 
-            top: calc(41.25% + 12px); 
-            left: calc(73% + 8px); 
-            width: 3%; height: 3.5%; 
+            top: calc(44.5% + 9px); 
+            left: calc(74.5% + 6px); 
+            width: 5%; height: 6%; 
         }
         .btn-down { 
-            top: calc(57.25% + 12px); 
-            left: calc(73% + 8px); 
-            width: 3%; height: 3.5%; 
+            top: calc(57.5% + 9px); 
+            left: calc(74.5% + 6px); 
+            width: 5%; height: 6%; 
         }
         .btn-left { 
-            top: calc(49% + 12px); 
-            left: calc(65.75% + 8px); 
-            width: 3.5%; height: 3%; 
+            top: calc(51% + 9px); 
+            left: calc(68.5% + 6px); 
+            width: 6%; height: 5%; 
         }
         .btn-right { 
-            top: calc(49% + 12px); 
-            left: calc(81.25% + 8px); 
-            width: 3.5%; height: 3%; 
+            top: calc(51% + 9px); 
+            left: calc(80.5% + 6px); 
+            width: 6%; height: 5%; 
         }
         
-        /* MENU 버튼 크기도 절반으로 축소 */
+        /* MENU 버튼: 가이드에 맞춰 크기 회복 및 위치 조정 */
         .btn-move { 
-            top: calc(63.6% + 12px); 
-            left: calc(70.45% + 8px); 
-            width: 7.9%; height: 2.25%; border-radius: 5px; 
+            top: calc(67% + 9px); 
+            left: calc(69% + 6px); 
+            width: 14%; height: 4.5%; border-radius: 10px; 
         }
 
         #status-tip {
