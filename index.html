@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        /* [수정 5] 기본 폰트 적용 */
         body {
             margin: 0; display: flex; justify-content: center; align-items: center;
             background-color: transparent; overflow: hidden;
@@ -17,27 +16,25 @@
             height: 450px;
         }
 
-        /* [수정 3] 카메라 본체 레이어 순서 변경 (z-index: 10) */
-        /* 사진보다 위에 있어야 자연스러운 액자 효과가 납니다. */
+        /* 카메라 본체 (중간 레이어) */
         .camera-body {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; /* 클릭은 통과시킴 */
-            opacity: 0; z-index: 10; transition: opacity 0.3s;
+            pointer-events: none; opacity: 0; z-index: 10; transition: opacity 0.3s;
         }
         .camera-body.active { opacity: 1; }
 
-        /* [수정 2] 스크린 영역 약간 확대 & [수정 3] 레이어 순서 변경 (z-index: 5) */
+        /* 스크린 영역 (하위 레이어) */
         #screen {
             position: absolute;
-            /* 조금 더 넓어진 좌표 */
             top: 28.2%; left: 18.5%; width: 41%; height: 34.5%;
-            
             overflow: hidden; display: flex;
             justify-content: center; align-items: center;
-            background-color: #f2f2f2; /* 기본 배경색 */
-            cursor: pointer; 
-            z-index: 5; /* 카메라보다 아래에 위치 */
-            border-radius: 4px; /* 모서리 살짝 둥글게 */
+            cursor: pointer; z-index: 5;
+            border-radius: 4px;
+            
+            /* ▼ 위치 확인용 주황 박스 (확인 후 삭제 가능) */
+            background-color: rgba(255, 165, 0, 0.2);
+            box-shadow: inset 0 0 0 2px rgba(255, 165, 0, 0.5);
         }
 
         #uploaded-img {
@@ -46,37 +43,31 @@
             transition: transform 0.1s ease, filter 0.2s ease;
         }
 
-        /* [수정 1] 문구 중앙 정렬 */
         .plus-icon {
-            /* position: absolute 제거 -> 부모의 flex 설정에 따라 중앙 정렬됨 */
             font-size: 14px; text-align: center; font-weight: 500;
-            color: #888; /* 기본 회색 (테마별로 바뀜) */
-            pointer-events: none; white-space: nowrap;
+            color: #888; pointer-events: none; white-space: nowrap;
         }
 
-        /* 버튼 레이어 (가장 상위 z-index: 20) */
-        .btn { position: absolute; cursor: pointer; z-index: 20; background: transparent; }
-        
-        /* 위치 확인용 (필요시 주석 해제) */
-        /* .btn { background: rgba(255, 0, 0, 0.3); } */
+        /* 버튼 레이어 (최상위 레이어) */
+        .btn { 
+            position: absolute; cursor: pointer; z-index: 20; 
+            /* ▼ 위치 확인용 주황 박스 (확인 후 삭제 가능) */
+            background-color: rgba(255, 165, 0, 0.5); 
+            border: 1px solid orange; 
+        }
 
-        /* OK 버튼 */
+        /* [좌표 매핑] */
         .btn-ok { top: 51.5%; left: 74.5%; width: 6.5%; height: 6.5%; border-radius: 50%; }
-        
-        /* [수정 4] 보정 버튼 크기 축소 (주황색 박스 크기에 맞춤) */
         .btn-up { top: 43.5%; left: 75%; width: 5.5%; height: 7.5%; }
         .btn-down { top: 60.5%; left: 75%; width: 5.5%; height: 7.5%; }
         .btn-left { top: 52%; left: 66.5%; width: 7.5%; height: 5.5%; }
         .btn-right { top: 52%; left: 83.5%; width: 7.5%; height: 5.5%; }
-
-        /* MENU 버튼 */
         .btn-move { top: 67.5%; left: 71%; width: 13.5%; height: 4.5%; border-radius: 10px; }
 
         #status-tip {
             position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%);
             color: white; padding: 6px 18px; border-radius: 20px;
             font-size: 13px; display: none; z-index: 30;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
         #file-input { display: none; }
@@ -97,9 +88,9 @@
     <div class="btn btn-ok" onclick="switchColor()" title="테마 변경"></div>
     <div class="btn btn-move" onclick="toggleMoveMode()" title="사진 이동"></div>
     <div class="btn btn-up" onclick="adjustFilter('bright', 10)"></div>
-    <div class="btn btn-down" onclick="adjustFilter('bright', -10)"></div>
-    <div class="btn btn-left" onclick="adjustFilter('contrast', -10)"></div>
-    <div class="btn btn-right" onclick="adjustFilter('contrast', 10)"></div>
+    <div id="d-btn" class="btn btn-down" onclick="adjustFilter('bright', -10)"></div>
+    <div id="l-btn" class="btn btn-left" onclick="adjustFilter('contrast', -10)"></div>
+    <div id="r-btn" class="btn btn-right" onclick="adjustFilter('contrast', 10)"></div>
 
     <div id="status-tip"></div>
 </div>
@@ -107,6 +98,7 @@
 <input type="file" id="file-input" accept="image/*" onchange="previewImage(event)">
 
 <script>
+    /* 스크립트 로직은 동일하게 유지됩니다 */
     const themes = [
         { id: 'blue', color: '#9abedb', tipBg: 'rgba(154, 190, 219, 0.95)' },
         { id: 'pink', color: '#ffb6c1', tipBg: 'rgba(255, 182, 193, 0.95)' },
