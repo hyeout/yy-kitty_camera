@@ -58,40 +58,40 @@
             border: 1px solid orange; 
         }
 
-        /* [수정] 업로드창과 버튼 크기는 유지하고, 위치만 하늘색 원 중심에 맞춤 */
-        /* 이전의 큰 폭 이동(100px/64px)을 취소하고 시각적 중심 좌표로 재설정 */
+        /* [수정] 크기는 고정, 위치만 이동 (위로 20px, 왼쪽으로 14px) */
+        /* calc()를 사용하여 이전의 최적 좌표에서 요청하신 픽셀만큼 정확히 이동했습니다. */
         
         .btn-ok { 
-            top: 53.2%; 
-            left: 76.5%; 
+            top: calc(53.2% - 20px); 
+            left: calc(76.5% - 14px); 
             width: 5%; height: 5%; border-radius: 50%; 
         }
         
         .btn-up { 
-            top: 45.4%; 
-            left: 76.5%; 
+            top: calc(45.4% - 20px); 
+            left: calc(76.5% - 14px); 
             width: 5%; height: 6%; 
         }
         .btn-down { 
-            top: 61.1%; 
-            left: 76.5%; 
+            top: calc(61.1% - 20px); 
+            left: calc(76.5% - 14px); 
             width: 5%; height: 6%; 
         }
         .btn-left { 
-            top: 53.2%; 
-            left: 68.8%; 
+            top: calc(53.2% - 20px); 
+            left: calc(68.8% - 14px); 
             width: 6%; height: 5%; 
         }
         .btn-right { 
-            top: 53.2%; 
-            left: 84.2%; 
+            top: calc(53.2% - 20px); 
+            left: calc(84.2% - 14px); 
             width: 6%; height: 5%; 
         }
         
-        /* MENU 버튼: 하늘색 타원 버튼 위치에 고정 */
+        /* MENU 버튼 이동 */
         .btn-move { 
-            top: 69.1%; 
-            left: 71.5%; 
+            top: calc(69.1% - 20px); 
+            left: calc(71.5% - 14px); 
             width: 14%; height: 4.5%; border-radius: 10px; 
         }
 
@@ -129,6 +129,7 @@
 <input type="file" id="file-input" accept="image/*" onchange="previewImage(event)">
 
 <script>
+    /* 스크립트 로직 (이전과 동일) */
     const themes = [
         { id: 'blue', color: '#9abedb', tipBg: 'rgba(154, 190, 219, 0.95)' },
         { id: 'pink', color: '#ffb6c1', tipBg: 'rgba(255, 182, 193, 0.95)' },
