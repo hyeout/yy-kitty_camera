@@ -10,21 +10,19 @@
             font-family: 'Gaegu', cursive; user-select: none;
         }
 
-        /* 1:1 비율 유지 및 크기 고정 */
         .widget-container {
             position: relative;
             width: 450px; 
-            height: 450px;
+            height: 450px; /* 1080x1080 정사각형 규격에 맞춤 */
         }
 
-        /* 모든 카메라 본체 완벽 겹침 */
         .camera-body {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; opacity: 0; z-index: 1; transition: opacity 0.3s;
         }
         .camera-body.active { opacity: 1; z-index: 2; }
 
-        /* 사각형 스크린 영역 (1080px 기준 좌표 계산 적용) */
+        /* 사각형 스크린 영역 */
         #screen {
             position: absolute;
             top: 26.5%; left: 17.5%; width: 42%; height: 34.5%; 
@@ -45,13 +43,13 @@
             z-index: 11; pointer-events: none;
         }
 
-        /* 투명 버튼 레이어 (1080px 기준 위치) */
+        /* 버튼 레이어 */
         .btn { position: absolute; cursor: pointer; z-index: 20; background: transparent; }
         
         /* 1. 색상 변경 (OK 버튼) */
         .btn-ok { top: 50.5%; left: 74.5%; width: 9%; height: 9%; border-radius: 50%; }
         
-        /* 2. 보정 버튼 (상하좌우) */
+        /* 2. 보정 버튼 (방향키 상하좌우) */
         .btn-up { top: 40%; left: 74.5%; width: 9%; height: 9%; }
         .btn-down { top: 61%; left: 74.5%; width: 9%; height: 9%; }
         .btn-left { top: 50.5%; left: 65.5%; width: 9%; height: 9%; }
@@ -60,12 +58,10 @@
         /* 3. 사진 이동 (MENU 위 타원 버튼) */
         .btn-move { top: 66%; left: 68%; width: 10%; height: 4%; border-radius: 10px; }
 
-        /* 알림창 */
         #status-tip {
             position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%);
             color: white; padding: 6px 18px; border-radius: 20px;
             font-size: 14px; display: none; z-index: 30;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         #file-input { display: none; }
@@ -74,9 +70,9 @@
 <body>
 
 <div class="widget-container">
-    <img src="kitty_camera_blue.jpg" id="cam-blue" class="camera-body active">
-    <img src="kitty_camera_pink.jpg" id="cam-pink" class="camera-body">
-    <img src="kitty_camera_red.jpg" id="cam-red" class="camera-body">
+    <img src="kitty_camera_blue.png" id="cam-blue" class="camera-body active">
+    <img src="kitty_camera_pink.png" id="cam-pink" class="camera-body">
+    <img src="kitty_camera_red.png" id="cam-red" class="camera-body">
 
     <div id="screen" onclick="triggerUpload()">
         <div class="plus-icon" id="placeholder" style="color: #9abedb;">click to upload ♡</div>
