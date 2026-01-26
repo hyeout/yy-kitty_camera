@@ -114,6 +114,33 @@
     const tip = document.getElementById('status-tip');
     const placeholder = document.getElementById('placeholder');
 
+    // [추가] 초기 실행 시 저장된 데이터 불러오기
+    window.onload = function() {
+        const savedImg = localStorage.getItem('kitty_saved_img');
+        if (savedImg) {
+            img.src = savedImg;
+            img.style.display = 'block';
+            placeholder.style.display = 'none';
+            
+            // 저장된 좌표 및 보정값 복구
+            translateX = parseFloat(localStorage.getItem('kitty_x')) || 0;
+            translateY = parseFloat(localStorage.getItem('kitty_y')) || 0;
+            brightness = parseInt(localStorage.getItem('kitty_bright')) || 100;
+            contrast = parseInt(localStorage.getItem('kitty_contrast')) || 100;
+            
+            img.style.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
+            
+            img.onload = function() {
+                if (img.naturalWidth > img.naturalHeight) {
+                    img.style.height = "100%"; img.style.width = "auto";
+                } else {
+                    img.style.width = "100%"; img.style.height = "auto";
+                }
+                updateTransform();
+            }
+        }
+    }
+
     function switchColor() {
         document.getElementById(`cam-${themes[currentIndex].id}`).classList.remove('active');
         currentIndex = (currentIndex + 1) % themes.length;
@@ -139,6 +166,11 @@
         if (type === 'bright') brightness += value;
         if (type === 'contrast') contrast += value;
         img.style.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
+        
+        // 상태 저장
+        localStorage.setItem('kitty_bright', brightness);
+        localStorage.setItem('kitty_contrast', contrast);
+        
         showTip(`Bright: ${brightness}% | Contrast: ${contrast}%`);
     }
 
@@ -156,14 +188,20 @@
         const file = event.target.files[0];
         const reader = new FileReader();
         reader.onload = function() {
-            img.src = reader.result;
+            const result = reader.result;
+            img.src = result;
             img.style.display = 'block';
             placeholder.style.display = 'none';
-            // 초기화
+            
+            // 초기화 및 데이터 저장
             brightness = 100; contrast = 100; translateX = 0; translateY = 0;
             img.style.filter = 'brightness(100%) contrast(100%)';
+            localStorage.setItem('kitty_saved_img', result);
+            localStorage.setItem('kitty_x', 0);
+            localStorage.setItem('kitty_y', 0);
+            localStorage.setItem('kitty_bright', 100);
+            localStorage.setItem('kitty_contrast', 100);
             
-            // 사진 비율에 따른 초기 설정 (세로가 길면 높이 100%, 가로가 길면 너비 100%)
             img.onload = function() {
                 if (img.naturalWidth > img.naturalHeight) {
                     img.style.height = "100%"; img.style.width = "auto";
@@ -190,7 +228,14 @@
             updateTransform(); 
         } 
     });
-    window.addEventListener('mouseup', () => { isDragging = false; });
+    window.addEventListener('mouseup', () => { 
+        if (isDragging) {
+            isDragging = false; 
+            // 드래그 종료 시 좌표 저장
+            localStorage.setItem('kitty_x', translateX);
+            localStorage.setItem('kitty_y', translateY);
+        }
+    });
     
     function updateTransform() { 
         img.style.transform = `translate(${translateX}px, ${translateY}px)`; 
