@@ -1,260 +1,248 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0; display: flex; justify-content: center; align-items: center;
-            background-color: transparent; overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-            user-select: none; min-height: 100vh;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0; display: flex; justify-content: center; align-items: center;
+            background-color: transparent; overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+            user-select: none; min-height: 100vh;
+        }
 
-        /* [기존 유지] 비율 고정 컨테이너 */
-        .widget-container {
-            position: relative;
-            width: 95vw;
-            max-width: 450px;
-            aspect-ratio: 1 / 1;
-        }
+        /* [핵심] 비율 고정 컨테이너: 창을 줄여도 1:1 유지 */
+        .widget-container {
+            position: relative;
+            width: 95vw;          /* 화면 너비에 맞게 조절 */
+            max-width: 450px;     /* 최대 크기 제한 */
+            aspect-ratio: 1 / 1;  /* ⭐ 가로세로 1:1 비율 강제 고정 */
+        }
 
-        /* [추가] 온보딩 설정 레이어 */
-        #onboarding-layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: white; z-index: 100; display: none; padding: 25px;
-            box-sizing: border-box; border-radius: 15px; border: 2px solid #ffb6c1;
-        }
-        .onboarding-content h1 { font-size: 18px; color: #ff8a8a; margin-bottom: 15px; }
-        .input-group { margin-bottom: 15px; text-align: left; }
-        .input-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; }
-        .input-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 12px; }
-        .start-btn { width: 100%; padding: 12px; background: #ffb6c1; border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; }
-        .tip-box { background: #fff5f7; padding: 10px; font-size: 11px; margin-top: 15px; border-radius: 5px; color: #666; }
+        /* 카메라 본체 (레이어 10) */
+        .camera-body {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; opacity: 0; z-index: 10; transition: opacity 0.3s;
+        }
+        .camera-body.active { opacity: 1; }
 
-        /* [기존 유지] 카메라 본체 및 화면 */
-        .camera-body { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; z-index: 10; transition: opacity 0.3s; }
-        .camera-body.active { opacity: 1; }
+        /* 스크린 영역 (레이어 5) */
+        #screen {
+            position: absolute;
+            top: 29.2%; left: 20.1%; 
+            width: calc(37.4% + 8px); height: 32.2%;
+            overflow: hidden; display: flex;
+            justify-content: center; align-items: center;
+            cursor: pointer; z-index: 5; border-radius: 3px;
+            background-color: #f7f7f7;
+        }
 
-        #screen {
-            position: absolute; top: 29.2%; left: 20.1%; 
-            width: calc(37.4% + 8px); height: 32.2%;
-            overflow: hidden; display: flex; justify-content: center; align-items: center;
-            cursor: pointer; z-index: 5; border-radius: 3px; background-color: #f7f7f7;
-        }
+        /* [수정] 업로드 이미지: 원본 비율 유지 및 이동 최적화 */
+        #uploaded-img {
+            position: absolute; 
+            /* 원본 비율을 위해 width/height를 강제하지 않음 */
+            height: 110%; /* 화면보다 살짝 크게 하여 이동 여유분 확보 */
+            width: auto;
+            max-width: none; max-height: none;
+            cursor: grab; display: none;
+            transition: filter 0.2s ease; /* 이동 시 transform transition은 제거 (부드러운 반응을 위해) */
+        }
 
-        #uploaded-img {
-            position: absolute; height: 110%; width: auto;
-            max-width: none; max-height: none; cursor: grab; display: none;
-            transition: filter 0.2s ease;
-        }
+        .plus-icon {
+            font-size: clamp(10px, 3vw, 14px);
+            text-align: center; font-weight: 500; color: #9abedb;
+            pointer-events: none;
+        }
 
-        .plus-icon { font-size: clamp(10px, 3vw, 14px); text-align: center; font-weight: 500; color: #9abedb; pointer-events: none; }
+        /* 버튼 레이어 (레이어 20) */
+        .btn { position: absolute; cursor: pointer; z-index: 20; background-color: transparent; }
 
-        /* [기존 유지] 초정밀 버튼 좌표 */
-        .btn { position: absolute; cursor: pointer; z-index: 20; background-color: transparent; }
-        .btn-ok { top: calc(53.2% - 20px); left: calc(76.5% - 14px); width: 5%; height: 5%; border-radius: 50%; }
-        .btn-up { top: calc(45.4% - 20px); left: calc(76.5% - 14px); width: 5%; height: 6%; }
-        .btn-down { top: calc(61.1% - 20px); left: calc(76.5% - 14px); width: 5%; height: 6%; }
-        .btn-left { top: calc(53.2% - 20px); left: calc(68.8% - 14px); width: 6%; height: 5%; }
-        .btn-right { top: calc(53.2% - 20px); left: calc(84.2% - 14px); width: 6%; height: 5%; }
-        .btn-move { top: calc(69.1% - 20px); left: calc(71.5% - 14px); width: 14%; height: 4.5%; border-radius: 10px; }
+        /* 버튼 좌표 (비율 고정으로 항상 일치) */
+        .btn-ok { top: calc(53.2% - 20px); left: calc(76.5% - 14px); width: 5%; height: 5%; border-radius: 50%; }
+        .btn-up { top: calc(45.4% - 20px); left: calc(76.5% - 14px); width: 5%; height: 6%; }
+        .btn-down { top: calc(61.1% - 20px); left: calc(76.5% - 14px); width: 5%; height: 6%; }
+        .btn-left { top: calc(53.2% - 20px); left: calc(68.8% - 14px); width: 6%; height: 5%; }
+        .btn-right { top: calc(53.2% - 20px); left: calc(84.2% - 14px); width: 6%; height: 5%; }
+        .btn-move { top: calc(69.1% - 20px); left: calc(71.5% - 14px); width: 14%; height: 4.5%; border-radius: 10px; }
 
-        #status-tip { position: absolute; bottom: 12%; left: 50%; transform: translateX(-50%); color: white; padding: 6px 18px; border-radius: 20px; font-size: 12px; display: none; z-index: 30; white-space: nowrap; }
-        #file-input { display: none; }
-    </style>
+        #status-tip {
+            position: absolute; bottom: 12%; left: 50%; transform: translateX(-50%);
+            color: white; padding: 6px 18px; border-radius: 20px;
+            font-size: 12px; display: none; z-index: 30; white-space: nowrap;
+        }
+
+        #file-input { display: none; }
+    </style>
 </head>
 <body>
 
 <div class="widget-container">
-    <div id="onboarding-layer">
-        <div class="onboarding-content">
-            <h1>🎀 Kitty Camera 설정</h1>
-            <div class="input-group">
-                <label>Notion API 토큰</label>
-                <input type="password" id="notion-token" placeholder="ntn_으로 시작하는 토큰 입력">
-            </div>
-            <div class="input-group">
-                <label>Database ID</label>
-                <input type="text" id="notion-dbid" placeholder="DB ID(32자리 문자열) 입력">
-            </div>
-            <button class="start-btn" onclick="saveOnboarding()">설정 완료하기</button>
-            <div class="tip-box">
-                💡 중요: 노션 DB 페이지 우측 상단 '...' -> '연결 추가'에서 만든 API를 연결했는지 확인하세요!
-            </div>
-        </div>
-    </div>
+    <img src="kitty_camera_blue.png" id="cam-blue" class="camera-body active">
+    <img src="kitty_camera_pink.png" id="cam-pink" class="camera-body">
+    <img src="kitty_camera_red.png" id="cam-red" class="camera-body">
 
-    <img src="kitty_camera_blue.png" id="cam-blue" class="camera-body active">
-    <img src="kitty_camera_pink.png" id="cam-pink" class="camera-body">
-    <img src="kitty_camera_red.png" id="cam-red" class="camera-body">
+    <div id="screen" onclick="triggerUpload()">
+        <div class="plus-icon" id="placeholder">click to upload ♡</div>
+        <img id="uploaded-img" src="" draggable="false">
+    </div>
 
-    <div id="screen" onclick="triggerUpload()">
-        <div class="plus-icon" id="placeholder">click to upload ♡</div>
-        <img id="uploaded-img" src="" draggable="false">
-    </div>
+    <div class="btn btn-ok" onclick="switchColor()" title="테마 변경"></div>
+    <div class="btn btn-move" onclick="toggleMoveMode()" title="사진 이동"></div>
+    <div class="btn btn-up" onclick="adjustFilter('bright', 10)"></div>
+    <div class="btn btn-down" onclick="adjustFilter('bright', -10)"></div>
+    <div class="btn btn-left" onclick="adjustFilter('contrast', -10)"></div>
+    <div class="btn btn-right" onclick="adjustFilter('contrast', 10)"></div>
 
-    <div class="btn btn-ok" onclick="switchColor()" title="테마 변경"></div>
-    <div class="btn btn-move" onclick="toggleMoveMode()" title="사진 이동"></div>
-    <div class="btn btn-up" onclick="adjustFilter('bright', 10)"></div>
-    <div class="btn btn-down" onclick="adjustFilter('bright', -10)"></div>
-    <div class="btn btn-left" onclick="adjustFilter('contrast', -10)"></div>
-    <div class="btn btn-right" onclick="adjustFilter('contrast', 10)"></div>
-
-    <div id="status-tip"></div>
+    <div id="status-tip"></div>
 </div>
 
 <input type="file" id="file-input" accept="image/*" onchange="previewImage(event)">
 
 <script>
-    let token = localStorage.getItem('kitty_token');
-    let dbId = localStorage.getItem('kitty_dbid');
+    const themes = [
+        { id: 'blue', color: '#9abedb', tipBg: 'rgba(154, 190, 219, 0.95)' },
+        { id: 'pink', color: '#ffb6c1', tipBg: 'rgba(255, 182, 193, 0.95)' },
+        { id: 'red',  color: '#ff8a8a', tipBg: 'rgba(255, 138, 138, 0.95)' }
+    ];
+    let currentIndex = 0;
+    let brightness = 100, contrast = 100;
+    let isMoveMode = false, isDragging = false;
+    let startX, startY, translateX = 0, translateY = 0;
 
-    const themes = [
-        { id: 'blue', color: '#9abedb', tipBg: 'rgba(154, 190, 219, 0.95)' },
-        { id: 'pink', color: '#ffb6c1', tipBg: 'rgba(255, 182, 193, 0.95)' },
-        { id: 'red',  color: '#ff8a8a', tipBg: 'rgba(255, 138, 138, 0.95)' }
-    ];
-    let currentIndex = 0, brightness = 100, contrast = 100, isMoveMode = false, isDragging = false;
-    let startX, startY, translateX = 0, translateY = 0;
+    const img = document.getElementById('uploaded-img');
+    const screen = document.getElementById('screen');
+    const tip = document.getElementById('status-tip');
+    const placeholder = document.getElementById('placeholder');
 
-    const img = document.getElementById('uploaded-img');
-    const screen = document.getElementById('screen');
-    const tip = document.getElementById('status-tip');
-    const placeholder = document.getElementById('placeholder');
+    // [추가] 초기 실행 시 저장된 데이터 불러오기
+    window.onload = function() {
+        const savedImg = localStorage.getItem('kitty_saved_img');
+        if (savedImg) {
+            img.src = savedImg;
+            img.style.display = 'block';
+            placeholder.style.display = 'none';
+            
+            // 저장된 좌표 및 보정값 복구
+            translateX = parseFloat(localStorage.getItem('kitty_x')) || 0;
+            translateY = parseFloat(localStorage.getItem('kitty_y')) || 0;
+            brightness = parseInt(localStorage.getItem('kitty_bright')) || 100;
+            contrast = parseInt(localStorage.getItem('kitty_contrast')) || 100;
+            
+            img.style.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
+            
+            img.onload = function() {
+                if (img.naturalWidth > img.naturalHeight) {
+                    img.style.height = "100%"; img.style.width = "auto";
+                } else {
+                    img.style.width = "100%"; img.style.height = "auto";
+                }
+                updateTransform();
+            }
+        }
+    }
 
-    // [수정] 초기 실행 시 노션 DB 연동 체크
-    window.onload = function() {
-        if (!token || !dbId) {
-            document.getElementById('onboarding-layer').style.display = 'block';
-        } else {
-            loadFromNotion();
-        }
-    }
+    function switchColor() {
+        document.getElementById(`cam-${themes[currentIndex].id}`).classList.remove('active');
+        currentIndex = (currentIndex + 1) % themes.length;
+        document.getElementById(`cam-${themes[currentIndex].id}`).classList.add('active');
+        placeholder.style.color = themes[currentIndex].color;
+        showTip(`Theme: ${themes[currentIndex].id.toUpperCase()}`);
+    }
 
-    function saveOnboarding() {
-        const t = document.getElementById('notion-token').value;
-        const d = document.getElementById('notion-dbid').value;
-        if (!t || !d) return alert("정보를 모두 입력해주세요!");
-        localStorage.setItem('kitty_token', t);
-        localStorage.setItem('kitty_dbid', d);
-        location.reload();
-    }
+    function toggleMoveMode() {
+        if (!img.src || img.style.display === 'none') return;
+        isMoveMode = !isMoveMode;
+        if (isMoveMode) {
+            showTip("MOVE MODE: ON");
+            screen.style.cursor = 'move'; img.style.pointerEvents = 'auto';
+        } else {
+            showTip("MOVE MODE: OFF");
+            screen.style.cursor = 'pointer'; img.style.pointerEvents = 'none';
+        }
+    }
 
-    // [추가] 노션 통신 함수
-    async function syncWithNotion(method, data = {}) {
-        try {
-            const res = await fetch('/api/notion', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token, dbId, method, data })
-            });
-            return await res.json();
-        } catch (e) { console.error("노션 동기화 실패:", e); }
-    }
+    function adjustFilter(type, value) {
+        if (!img.src || img.style.display === 'none') return;
+        if (type === 'bright') brightness += value;
+        if (type === 'contrast') contrast += value;
+        img.style.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
+        
+        // 상태 저장
+        localStorage.setItem('kitty_bright', brightness);
+        localStorage.setItem('kitty_contrast', contrast);
+        
+        showTip(`Bright: ${brightness}% | Contrast: ${contrast}%`);
+    }
 
-    async function loadFromNotion() {
-        showTip("Syncing with Notion...");
-        const result = await syncWithNotion('GET');
-        if (result && result.results && result.results.length > 0) {
-            const page = result.results[0].properties;
-            if (page.ImageURL.rich_text.length > 0) {
-                img.src = page.ImageURL.rich_text[0].text.content;
-                img.style.display = 'block';
-                placeholder.style.display = 'none';
-            }
-            translateX = page.X.number || 0;
-            translateY = page.Y.number || 0;
-            brightness = page.Bright.number || 100;
-            contrast = page.Contrast.number || 100;
-            
-            // 테마 적용
-            const savedTheme = page.Theme.rich_text[0]?.text.content || 'blue';
-            applySavedTheme(savedTheme);
-            updateTransform();
-            img.style.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
-        }
-    }
+    function showTip(text) {
+        tip.innerText = text;
+        tip.style.background = themes[currentIndex].tipBg;
+        tip.style.display = 'block';
+        clearTimeout(window.tipTimeout);
+        window.tipTimeout = setTimeout(() => { tip.style.display = 'none'; }, 2000);
+    }
 
-    async function saveToNotion() {
-        const data = {
-            img: img.src, x: translateX, y: translateY,
-            bright: brightness, contrast: contrast,
-            theme: themes[currentIndex].id
-        };
-        await syncWithNotion('SAVE', data);
-        showTip("Saved to Notion ✨");
-    }
+    function triggerUpload() { if (!isMoveMode) document.getElementById('file-input').click(); }
 
-    // [기존 유지] 테마 및 필터 로직
-    function switchColor() {
-        document.getElementById(`cam-${themes[currentIndex].id}`).classList.remove('active');
-        currentIndex = (currentIndex + 1) % themes.length;
-        document.getElementById(`cam-${themes[currentIndex].id}`).classList.add('active');
-        placeholder.style.color = themes[currentIndex].color;
-        showTip(`Theme: ${themes[currentIndex].id.toUpperCase()}`);
-        saveToNotion();
-    }
+    function previewImage(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function() {
+            const result = reader.result;
+            img.src = result;
+            img.style.display = 'block';
+            placeholder.style.display = 'none';
+            
+            // 초기화 및 데이터 저장
+            brightness = 100; contrast = 100; translateX = 0; translateY = 0;
+            img.style.filter = 'brightness(100%) contrast(100%)';
+            localStorage.setItem('kitty_saved_img', result);
+            localStorage.setItem('kitty_x', 0);
+            localStorage.setItem('kitty_y', 0);
+            localStorage.setItem('kitty_bright', 100);
+            localStorage.setItem('kitty_contrast', 100);
+            
+            img.onload = function() {
+                if (img.naturalWidth > img.naturalHeight) {
+                    img.style.height = "100%"; img.style.width = "auto";
+                } else {
+                    img.style.width = "100%"; img.style.height = "auto";
+                }
+                updateTransform();
+            }
+        }
+        if (file) reader.readAsDataURL(file);
+    }
 
-    function applySavedTheme(themeId) {
-        document.getElementById(`cam-${themes[currentIndex].id}`).classList.remove('active');
-        currentIndex = themes.findIndex(t => t.id === themeId);
-        if(currentIndex === -1) currentIndex = 0;
-        document.getElementById(`cam-${themes[currentIndex].id}`).classList.add('active');
-        placeholder.style.color = themes[currentIndex].color;
-    }
-
-    function toggleMoveMode() {
-        if (!img.src || img.style.display === 'none') return;
-        isMoveMode = !isMoveMode;
-        if (isMoveMode) {
-            showTip("MOVE MODE: ON");
-            screen.style.cursor = 'move'; img.style.pointerEvents = 'auto';
-        } else {
-            showTip("MOVE MODE: OFF");
-            screen.style.cursor = 'pointer'; img.style.pointerEvents = 'none';
-            saveToNotion(); // 이동 종료 시 저장
-        }
-    }
-
-    function adjustFilter(type, value) {
-        if (!img.src || img.style.display === 'none') return;
-        if (type === 'bright') brightness += value;
-        if (type === 'contrast') contrast += value;
-        img.style.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
-        showTip(`Bright: ${brightness}% | Contrast: ${contrast}%`);
-        saveToNotion();
-    }
-
-    function showTip(text) {
-        tip.innerText = text;
-        tip.style.background = themes[currentIndex].tipBg;
-        tip.style.display = 'block';
-        clearTimeout(window.tipTimeout);
-        window.tipTimeout = setTimeout(() => { tip.style.display = 'none'; }, 2000);
-    }
-
-    function triggerUpload() { if (!isMoveMode) document.getElementById('file-input').click(); }
-
-    function previewImage(event) {
-        const file = event.target.files[0];
-        const reader = new FileReader();
-        reader.onload = function() {
-            img.src = reader.result;
-            img.style.display = 'block';
-            placeholder.style.display = 'none';
-            brightness = 100; contrast = 100; translateX = 0; translateY = 0;
-            updateTransform();
-            saveToNotion(); // 업로드 시 저장
-        }
-        if (file) reader.readAsDataURL(file);
-    }
-
-    screen.addEventListener('mousedown', (e) => { if (isMoveMode) { isDragging = true; startX = e.clientX - translateX; startY = e.clientY - translateY; } });
-    window.addEventListener('mousemove', (e) => { if (isDragging) { translateX = e.clientX - startX; translateY = e.clientY - startY; updateTransform(); } });
-    window.addEventListener('mouseup', () => { isDragging = false; });
-    function updateTransform() { img.style.transform = `translate(${translateX}px, ${translateY}px)`; }
+    screen.addEventListener('mousedown', (e) => { 
+        if (isMoveMode) { 
+            isDragging = true; 
+            startX = e.clientX - translateX; 
+            startY = e.clientY - translateY; 
+        } 
+    });
+    window.addEventListener('mousemove', (e) => { 
+        if (isDragging) { 
+            translateX = e.clientX - startX; 
+            translateY = e.clientY - startY; 
+            updateTransform(); 
+        } 
+    });
+    window.addEventListener('mouseup', () => { 
+        if (isDragging) {
+            isDragging = false; 
+            // 드래그 종료 시 좌표 저장
+            localStorage.setItem('kitty_x', translateX);
+            localStorage.setItem('kitty_y', translateY);
+        }
+    });
+    
+    function updateTransform() { 
+        img.style.transform = `translate(${translateX}px, ${translateY}px)`; 
+    }
 </script>
 
 </body>
 </html>
+
+이게 기존 코드인데? 이외의 것들은 건들지 ㅏㄹ고 기능 추가만 해줭
